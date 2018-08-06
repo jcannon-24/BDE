@@ -1,0 +1,20 @@
+select aa.individual_key, aa.activity_type_key, sum(aa.individual_activity_count)
+from dev.public.individual_activity_fact aa
+join dev.public.date_dim bb on aa.date_key = bb.date_key
+left join (
+select a.date_key  as join_date
+, join_date + 10000 as PTD
+, a.individual_key
+, a.act_order_response_key_code
+, a.act_order_order_term
+from dev.public.individual_activity_fact a 
+join dev.public.date_dim  b on a.date_key = b.date_key
+where a.activity_type_key = 21 
+and a.act_order_order_num = 1 
+and b.year_number = 2017
+and b.month_number = 7
+and a.act_order_order_term = 12
+            ) cc on aa.individual_key = cc.individual_key
+            
+            where aa.date_key > cc.join_date and aa.date_key < cc.PTD
+group by 1,2
